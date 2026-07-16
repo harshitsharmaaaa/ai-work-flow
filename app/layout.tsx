@@ -32,7 +32,7 @@ export default function RootLayout({
       className={cn("antialiased", fontMono.variable, "font-sans", geist.variable)}
     >
       <body>
-        <ClerkProvider appearance={{ baseTheme: shadcn }}>
+        <ClerkProvider appearance={shadcn}>
           <ThemeProvider>
             <header className="flex items-center justify-end gap-3 border-b px-6 py-3">
               <Show when="signed-out">
