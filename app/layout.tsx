@@ -4,13 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { cn } from "@/lib/utils"
-import {
-  ClerkProvider,
-  Show,
-  SignInButton,
-  SignUpButton,
-  UserButton,
-} from "@clerk/nextjs"
+import { ClerkProvider } from "@clerk/nextjs"
 import { shadcn } from "@clerk/ui/themes"
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
@@ -34,15 +28,6 @@ export default function RootLayout({
       <body>
         <ClerkProvider appearance={shadcn}>
           <ThemeProvider>
-            <header className="flex items-center justify-end gap-3 border-b px-6 py-3">
-              <Show when="signed-out">
-                <SignInButton />
-                <SignUpButton />
-              </Show>
-              <Show when="signed-in">
-                <UserButton />
-              </Show>
-            </header>
             {children}
             <Toaster />
           </ThemeProvider>
