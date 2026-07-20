@@ -8,6 +8,13 @@
       "when": 1784482645277,
       "tag": "0000_square_blindfold",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784555697247,
+      "tag": "0001_oval_champions",
+      "breakpoints": true
     }
   ]
 }
