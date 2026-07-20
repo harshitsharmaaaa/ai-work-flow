@@ -11,6 +11,14 @@ export function userList(id: string) {
    ) 
 }
 
+export async function listWorkflows(orgId: string) {
+  return await db
+    .select()
+    .from(workflows)
+    .where(eq(workflows.orgId, orgId))
+    .orderBy(desc(workflows.createdAt));
+}
+
 export async function createWorkflow(orgId: string, name: string) {
   const [row] = await db
     .insert(workflows)
