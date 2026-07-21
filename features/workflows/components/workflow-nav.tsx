@@ -1,6 +1,8 @@
 "use client"
 
 import { useTransition } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Plus, Workflow } from "lucide-react"
 import {
   SidebarGroup,
@@ -32,6 +34,11 @@ type WorkflowNavProps = {
 export function WorkflowNav({ workflows, createWorkflow }: WorkflowNavProps) {
   const { state } = useSidebar()
   const [isPending, startTransition] = useTransition()
+  const pathname = usePathname()
+
+  function isActive(id: string) {
+    return pathname === `/workflows/${id}`
+  }
 
   function handleCreate() {
     startTransition(() => createWorkflow(generateSlug()))
@@ -65,6 +72,10 @@ export function WorkflowNav({ workflows, createWorkflow }: WorkflowNavProps) {
                       key={workflow.id}
                       variant="ghost"
                       className="justify-start"
+                      render={
+                        <Link href={`/workflows/${workflow.id}`} />
+                      }
+                      aria-current={isActive(workflow.id) ? "page" : undefined}
                     >
                       {workflow.name}
                     </Button>
@@ -95,7 +106,11 @@ export function WorkflowNav({ workflows, createWorkflow }: WorkflowNavProps) {
           </SidebarMenuItem>
           {workflows.map((workflow) => (
             <SidebarMenuItem key={workflow.id}>
-              <SidebarMenuButton tooltip={workflow.name}>
+              <SidebarMenuButton
+                tooltip={workflow.name}
+                isActive={isActive(workflow.id)}
+                render={<Link href={`/workflows/${workflow.id}`} />}
+              >
                 <span>{workflow.name}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
