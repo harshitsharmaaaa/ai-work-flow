@@ -3,6 +3,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
+import { Canvas } from "@/features/workflows/components/canvas"
 import { RightSidebar } from "@/features/workflows/components/right-sidebar"
 
 export function WorkflowShell({ workflowId }: { workflowId: string }) {
@@ -14,9 +15,7 @@ export function WorkflowShell({ workflowId }: { workflowId: string }) {
       <ResizablePanel minSize="30rem">
         <ResizablePanelGroup orientation="vertical" className="size-full">
           <ResizablePanel minSize="18rem">
-            <div className="flex h-full items-center justify-center p-4 text-muted-foreground">
-              Canvas
-            </div>
+            <Canvas />
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize="8rem" minSize="6rem">

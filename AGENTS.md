@@ -13,6 +13,13 @@ columns, narrow with Pick<Row, ... > / Omit<Row,
 literal type. Don't add an insert type where 'db. insert( ... ).values()' already
 enforces the shape.
 
+<!-- BEGIN:reactflow-agent-rules -->
+# This is NOT the React Flow you know
+
+React Flow (`@xyflow/react`) APIs, components, props, and usage patterns may differ from your training data. Before writing or changing any React Flow code, fetch and consult https://reactflow.dev/llms.txt for the current API. Heed deprecation notices.
+<!-- END:reactflow-agent-rules -->
+
+
 <!-- TRIGGER.DEV SKILLS START -->
 ## Trigger.dev agent skills
 

@@ -70,7 +70,7 @@ export function WorkflowNav({ workflows, createWorkflow }: WorkflowNavProps) {
                   {workflows.map((workflow) => (
                     <Button
                       key={workflow.id}
-                      variant="ghost"
+                      variant={isActive(workflow.id) ? "secondary" : "ghost"}
                       className="justify-start"
                       render={
                         <Link href={`/workflows/${workflow.id}`} />
