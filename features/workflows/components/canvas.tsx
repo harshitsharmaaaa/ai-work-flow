@@ -1,6 +1,5 @@
 "use client"
 
-import { useCallback, useState } from "react"
 import { useTheme } from "next-themes"
 import { useMounted } from "@/hooks/use-mounted"
 import {
@@ -8,18 +7,13 @@ import {
   Background,
   Controls,
   MiniMap,
-  applyNodeChanges,
-  applyEdgeChanges,
   ConnectionLineType,
-  addEdge,
-  type Node,
+  NodeTypes,
   type Edge,
-  type OnNodesChange,
-  type OnEdgesChange,
-  type OnConnect,
 } from "@xyflow/react"
+import { useLiveblocksFlow, Cursors } from "@liveblocks/react-flow"
 import {StepNode} from "./step-node"
-import type {StepNodeType} from "./node-registry"
+import type {StepNodeType} from "../../workflows/nodes/node-registry"
 
 const nodeTypes:NodeTypes={step:StepNode}
 
@@ -36,27 +30,17 @@ const initialEdges: Edge[] = []
 export function Canvas() {
   const { resolvedTheme } = useTheme()
   const mounted = useMounted()
-  const [nodes, setNodes] = useState<Node[]>(initialNodes)
-  const [edges, setEdges] = useState<Edge[]>(initialEdges)
-
-  const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes((snapshot) => applyNodeChanges(changes, snapshot)),
-    []
-  )
-  const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => setEdges((snapshot) => applyEdgeChanges(changes, snapshot)),
-    []
-  )
-  const onConnect: OnConnect = useCallback(
-    (params) => setEdges((snapshot) => addEdge(params, snapshot)),
-    []
-  )
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect } =
+    useLiveblocksFlow({
+      nodes: { initial: initialNodes },
+      edges: { initial: initialEdges },
+    })
 
   return (
     <ReactFlow
       nodeTypes={nodeTypes}
-      nodes={nodes}
-      edges={edges}
+      nodes={nodes ?? undefined}
+      edges={edges ?? undefined}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
@@ -80,6 +64,7 @@ export function Canvas() {
       <Background />
       <Controls />
       <MiniMap />
+      <Cursors />
     </ReactFlow>
   )
 }
