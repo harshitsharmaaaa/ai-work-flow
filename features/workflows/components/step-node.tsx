@@ -8,12 +8,15 @@ import {
 import { cn } from "@/lib/utils"
 
 function StepNodeComponent({ data, selected }: NodeProps<StepNodeType>) {
-  const { type, kind, title } = data
+  const { type, kind, title, values } = data
   const def = nodeRegistry[type]
   const Icon = def.icon
 
   // A trigger starts the flow and takes no input, so it has no target handle.
   const hasTarget = kind !== "trigger"
+
+  // The start node has no fields to display.
+  const hasDetails = type !== "start" && def.fields.length > 0
 
   return (
     <div
@@ -42,6 +45,28 @@ function StepNodeComponent({ data, selected }: NodeProps<StepNodeType>) {
         </div>
         <span className="text-sm font-semibold">{title}</span>
       </div>
+
+      {hasDetails && (
+        <div className="flex flex-col gap-1.5 border-t border-border px-3 py-2">
+          {def.fields.map((field) => (
+            <div key={field.key} className="flex flex-col gap-0.5">
+              <span className="text-[0.6875rem] font-medium text-muted-foreground">
+                {field.label}
+                {field.required && (
+                  <span className="text-destructive">*</span>
+                )}
+              </span>
+              <span className="truncate text-xs">
+                {values[field.key] || (
+                  <span className="text-muted-foreground/60">
+                    {field.placeholder ?? "—"}
+                  </span>
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <Handle
         type="source"

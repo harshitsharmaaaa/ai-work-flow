@@ -8,6 +8,10 @@ export type NodeField = {
   key: string
   label: string
   placeholder?: string
+  /** When true, the inspector renders a multi-line textarea instead of a single-line input. */
+  multiline?: boolean
+  /** When true, the field must be filled before the workflow can be run. */
+  required?: boolean
 }
 
 // A node type's manifest entry. Add a node by adding an entry to nodeRegistry.
@@ -35,7 +39,7 @@ export const nodeRegistry = {
     label: "Open URL",
     icon: Globe,
     accent: "bg-emerald-500 text-white",
-    fields: [{ key: "url", label: "URL", placeholder: "https://youtube.com" }],
+    fields: [{ key: "url", label: "URL", placeholder: "https://youtube.com", required: true }],
   },
 } satisfies Record<string, NodeDefinition>
 

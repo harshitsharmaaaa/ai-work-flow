@@ -38,3 +38,11 @@ export async function getWorkflow(orgId: string, id: string) {
     .where(and(eq(workflows.orgId, orgId), eq(workflows.id, id)));
   return row;
 }
+
+export async function deleteWorkflow(orgId: string, id: string) {
+  const [row] = await db
+    .delete(workflows)
+    .where(and(eq(workflows.orgId, orgId), eq(workflows.id, id)))
+    .returning();
+  return row;
+}

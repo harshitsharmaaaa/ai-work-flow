@@ -15,13 +15,17 @@ export default async function Page(props: PageProps<"/workflows/[id]">) {
   if(!workflows){
     return notFound()
   }
-  await liveblocks.getOrCreateRoom(id, {
-    defaultAccesses: [],
-    groupsAccesses: {
-      [orgId]: ["room:write"],
-    },
-    organizationId: orgId,
-  })
+  try {
+    await liveblocks.getOrCreateRoom(id, {
+      defaultAccesses: [],
+      groupsAccesses: {
+        [orgId]: ["room:write"],
+      },
+      organizationId: orgId,
+    })
+  } catch (error) {
+    console.error("Failed to create Liveblocks room:", error)
+  }
   return (
     <Room roomId={id}>
       <WorkflowShell  workflowId={id}/>
