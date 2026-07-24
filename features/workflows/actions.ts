@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 import { auth as triggerAuth, tasks ,runs} from "@trigger.dev/sdk";
 import { createWorkflow, deleteWorkflow ,saveworkflowgraph} from "./data";
 import { liveblocks } from "@/features/workflows/lib/liveblock";
-import type { helloWorld } from "@/trigger/example";
 import type {runworkflowTask} from "./tasks/run-workflow";
 import { WorkFlowGraph } from "@/lib/db/schema";
 export async function createWorkflowAction(name: string) {
