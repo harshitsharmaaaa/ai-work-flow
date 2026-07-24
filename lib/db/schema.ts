@@ -1,4 +1,9 @@
-import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp ,uuid,jsonb} from 'drizzle-orm/pg-core';
+import type {Edge} from "@xyflow/react";
+import type {StepNodeType} from "../../features/workflows/nodes/node-registry";
+
+
+export type WorkFlowGraph = {nodes: StepNodeType[], edges: Edge[]};
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -8,9 +13,10 @@ export const users = pgTable('users', {
 });
 
 export const workflows = pgTable('workflows', {
-  id: text('id').primaryKey(),
+  id: uuid('id').primaryKey(),
   orgId: text('org_id').notNull(),
   name: text('name').notNull(),
+  graph: jsonb('graph').$type<WorkFlowGraph>(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

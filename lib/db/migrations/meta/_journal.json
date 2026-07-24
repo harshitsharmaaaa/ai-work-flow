@@ -15,6 +15,13 @@
       "when": 1784555697247,
       "tag": "0001_oval_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784872635964,
+      "tag": "0002_fearless_expediter",
+      "breakpoints": true
     }
   ]
 }

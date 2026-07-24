@@ -5,8 +5,8 @@ import { MoreHorizontal, Play, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { useOnSelectionChange, useReactFlow, useStore } from "@xyflow/react"
 
-import { deleteWorkflowAction } from "@/features/workflows/actions"
-
+import { deleteWorkflowAction , runWorkflowAction} from "@/features/workflows/actions";
+import {validateGraph} from "@/features/workflows/lib/validate-grpah";
 import {
   Accordion,
   AccordionContent,
@@ -122,6 +122,8 @@ function Field({
 
 // The Editor tab: one input per field on the selected node, or an empty state.
 function Inspector({ node }: { node: StepNodeType | undefined }) {
+  const { updateNodeData } = useReactFlow<StepNodeType>()
+
   if (!node) {
     return (
       <Section title="Editor">
@@ -151,8 +153,9 @@ function Inspector({ node }: { node: StepNodeType | undefined }) {
                 field={field}
                 value={values[field.key] ?? ""}
                 onChange={(value) => {
-                  // TODO: save the edit back onto the selected node.
-                  void value
+                  updateNodeData(node.id, (current) => ({
+                    values: { ...current.data.values, [field.key]: value },
+                  }))
                 }}
               />
             </div>
@@ -278,9 +281,9 @@ function ActionsMenu({ workflowId }: { workflowId: string }) {
           variant="destructive"
           disabled={isPending}
           className="text-xs [&_svg:not([class*='size-'])]:size-3.5"
-          onSelect={() => {
-            startTransition(() => {
-              void deleteWorkflowAction(workflowId)
+          onSelect={async () => {
+            await startTransition(async () => {
+              await deleteWorkflowAction(workflowId)
             })
           }}
         >
@@ -293,9 +296,9 @@ function ActionsMenu({ workflowId }: { workflowId: string }) {
 }
 
 // Kicks off a run of the current workflow.
-function RunButton() {
-  const { getNodes } = useReactFlow()
-
+function RunButton({workflowId}: {workflowId: string}) {
+  const {getNodes, getEdges} = useReactFlow<StepNodeType>();
+  const [isPending, startTransition] = useTransition();
   const handleRun = () => {
     const incomplete: string[] = []
 
@@ -325,7 +328,19 @@ function RunButton() {
     <Button
       size="sm"
       variant="secondary"
-      onClick={handleRun}
+      onClick={()=>{
+        const graph = {nodes:getNodes(), edges:getEdges()};
+        const problems = validateGraph(graph);
+        if(problems.length > 0){
+          toast.error("The workflow is not valid", {
+            description: problems.join("\n"),
+          });
+          return;
+        }
+        startTransition(async () => {
+          await runWorkflowAction({id: workflowId, graph});
+        }); 
+      }}
     >
       <Play fill="primary" />
       Run
@@ -339,25 +354,28 @@ function RunButton() {
 
 export function RightSidebar({ workflowId }: { workflowId: string }) {
   const [tab, setTab] = useState("toolbar")
-  const [selected, setSelected] = useState<StepNodeType | undefined>(undefined)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
 
-  const [prevSelected, setPrevSelected] = useState(selected?.id)
-  if(selected &&prevSelected !== selected?.id){
-    setPrevSelected(selected?.id)
+  const selected = useStore((s) =>
+    selectedId ? (s.nodeLookup.get(selectedId) as StepNodeType | undefined) : undefined
+  )
+
+  const [prevSelected, setPrevSelected] = useState(selectedId)
+  if (selectedId && prevSelected !== selectedId) {
+    setPrevSelected(selectedId)
     setTab("editor")
-    // TODO: save the selected node to the workflow.
   }
   useOnSelectionChange({
     onChange: ({ nodes }) => {
-      setSelected(nodes[0] as StepNodeType | undefined)
+      setSelectedId(nodes[0]?.id ?? null)
     },
   })
 
   useEffect(() => {
-    if (selected) {
+    if (selectedId) {
       setTab("editor")
     }
-  }, [selected])
+  }, [selectedId])
 
   return (
     <ResizablePanel
@@ -370,7 +388,7 @@ export function RightSidebar({ workflowId }: { workflowId: string }) {
       <Tabs value={tab} onValueChange={setTab} className="size-full gap-0">
         <div className="flex items-center justify-between border-b border-border p-2">
           <ActionsMenu workflowId={workflowId} />
-          <RunButton />
+          <RunButton workflowId={workflowId}/>
         </div>
         <TabsList className="m-2 w-fit bg-background">
           <TabsTrigger
