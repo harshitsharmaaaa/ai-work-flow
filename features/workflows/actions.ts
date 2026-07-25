@@ -9,8 +9,11 @@ import { liveblocks } from "@/features/workflows/lib/liveblock";
 import type {runworkflowTask} from "./tasks/run-workflow";
 import { WorkFlowGraph } from "@/lib/db/schema";
 export async function createWorkflowAction(name: string) {
-  const { orgId } = await auth();
+  const { orgId, has } = await auth();
   if (!orgId) throw new Error("No active organization");
+  if (!has({ plan: "pro" })) {
+    redirect("/pricing");
+  }
 
   const row = await createWorkflow(orgId, name);
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState, useTransition } from "react"
-import { MoreHorizontal, Play, Trash2 } from "lucide-react"
+import { Lock, MoreHorizontal, Play, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { useOnSelectionChange, useReactFlow, useStore } from "@xyflow/react"
 
@@ -27,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { NodeIcon } from "@/features/workflows/components/node-icon"
 import { useUpstreamConnections } from "@/features/workflows/hooks/use-upstream-connections"
+import { useProPlan } from "@/features/workflows/hooks/use-pro-plan"
 import {
   nodeRegistry,
   type NodeDefinition,
@@ -218,6 +219,7 @@ function Palette() {
   const { addNodes, getNodes, getViewport } = useReactFlow()
   const flowWidth = useStore((s) => s.width)
   const flowHeight = useStore((s) => s.height)
+  const { isPro, upgrade } = useProPlan()
 
   const add = (type: NodeType) => {
     const def = nodeRegistry[type]
@@ -280,11 +282,21 @@ function Palette() {
                   <Button
                     key={def.type}
                     variant="ghost"
-                    onClick={() => add(def.type as NodeType)}
+                    onClick={() => {
+                      if (def.type === "agent" && !isPro) {
+                        upgrade()
+                        return
+                      }
+
+                      add(def.type as NodeType)
+                    }}
                     className="justify-start gap-2.5 px-1.5 text-xs"
                   >
                     <NodeIcon type={def.type as NodeType} />
                     {def.label}
+                    {def.type === "agent" && !isPro && (
+                      <Lock className="ml-auto size-3.5 text-muted-foreground" />
+                    )}
                   </Button>
                 ))}
             </AccordionContent>

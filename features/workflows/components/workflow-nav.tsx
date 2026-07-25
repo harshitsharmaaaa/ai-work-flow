@@ -3,7 +3,7 @@
 import { useTransition } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Plus, Workflow } from "lucide-react"
+import { Lock, Plus, Workflow } from "lucide-react"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import { generateSlug } from "@/features/workflows/lib/generate-slug"
+import { useProPlan } from "@/features/workflows/hooks/use-pro-plan"
 
 type Workflow = {
   id: string
@@ -35,12 +36,18 @@ export function WorkflowNav({ workflows, createWorkflow }: WorkflowNavProps) {
   const { state } = useSidebar()
   const [isPending, startTransition] = useTransition()
   const pathname = usePathname()
+  const { isPro, upgrade } = useProPlan()
 
   function isActive(id: string) {
     return pathname === `/workflows/${id}`
   }
 
   function handleCreate() {
+    if (!isPro) {
+      upgrade()
+      return
+    }
+
     startTransition(() => createWorkflow(generateSlug()))
   }
 
@@ -64,8 +71,8 @@ export function WorkflowNav({ workflows, createWorkflow }: WorkflowNavProps) {
                     onClick={handleCreate}
                     disabled={isPending}
                   >
-                    <Plus />
-                    New workflow
+                    {!isPro ? <Lock /> : <Plus />}
+                    {isPro ? "New workflow" : "Upgrade to create"}
                   </Button>
                   {workflows.map((workflow) => (
                     <Button
@@ -100,8 +107,8 @@ export function WorkflowNav({ workflows, createWorkflow }: WorkflowNavProps) {
               onClick={handleCreate}
               disabled={isPending}
             >
-              <Plus />
-              <span>New workflow</span>
+              {!isPro ? <Lock /> : <Plus />}
+              <span>{isPro ? "New workflow" : "Upgrade to create"}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           {workflows.map((workflow) => (
