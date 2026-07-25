@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useCallback, useEffect, useState, useTransition } from "react"
 import { MoreHorizontal, Play, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { useOnSelectionChange, useReactFlow, useStore } from "@xyflow/react"
@@ -23,10 +23,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { ResizablePanel } from "@/components/ui/resizable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 
+import { useUpstreamConnections } from "@/features/workflows/hooks/use-upstream-connections"
 import {
   nodeRegistry,
   type NodeDefinition,
@@ -94,10 +94,12 @@ function Field({
   field,
   value,
   onChange,
+  onFocus,
 }: {
   field: NodeField
   value: string
   onChange: (value: string) => void
+  onFocus?: () => void
 }) {
   if (field.multiline) {
     return (
@@ -106,6 +108,7 @@ function Field({
         value={value}
         placeholder={field.placeholder}
         onChange={(e) => onChange(e.target.value)}
+        onFocus={onFocus}
       />
     )
   }
@@ -116,6 +119,7 @@ function Field({
       value={value}
       placeholder={field.placeholder}
       onChange={(e) => onChange(e.target.value)}
+      onFocus={onFocus}
     />
   )
 }
@@ -123,6 +127,31 @@ function Field({
 // The Editor tab: one input per field on the selected node, or an empty state.
 function Inspector({ node }: { node: StepNodeType | undefined }) {
   const { updateNodeData } = useReactFlow<StepNodeType>()
+  const [lastFocusedField, setLastFocusedField] = useState<string | null>(null)
+
+  const upstream = useUpstreamConnections(node?.id ?? null)
+
+  const insertToken = useCallback(
+    (token: string) => {
+      if (!node) return
+
+      const targetKey = lastFocusedField ?? nodeRegistry[node.data.type].fields[0]?.key
+      if (!targetKey) return
+
+      updateNodeData(node.id, (current) => {
+        const currentValue = current.data.values[targetKey] ?? ""
+        return {
+          values: {
+            ...current.data.values,
+            [targetKey]: currentValue
+              ? `${currentValue} ${token}`
+              : token,
+          },
+        }
+      })
+    },
+    [node, lastFocusedField, updateNodeData],
+  )
 
   if (!node) {
     return (
@@ -157,9 +186,31 @@ function Inspector({ node }: { node: StepNodeType | undefined }) {
                     values: { ...current.data.values, [field.key]: value },
                   }))
                 }}
+                onFocus={() => setLastFocusedField(field.key)}
               />
             </div>
           ))
+        )}
+
+        {upstream.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-semibold text-muted-foreground">
+              Connections
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {upstream.map((output) => (
+                <button
+                  key={output.token}
+                  type="button"
+                  onClick={() => insertToken(output.token)}
+                  className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs hover:bg-accent hover:text-accent-foreground"
+                >
+                  <NodeIcon type={output.sourceType} />
+                  {output.label}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </Section>
@@ -378,13 +429,7 @@ export function RightSidebar({ workflowId }: { workflowId: string }) {
   }, [selectedId])
 
   return (
-    <ResizablePanel
-      className="bg-background"
-      defaultSize="16rem"
-      minSize="14rem"
-      maxSize="36rem"
-      groupResizeBehavior="preserve-pixel-size"
-    >
+    <div className="size-full bg-background">
       <Tabs value={tab} onValueChange={setTab} className="size-full gap-0">
         <div className="flex items-center justify-between border-b border-border p-2">
           <ActionsMenu workflowId={workflowId} />
@@ -411,6 +456,6 @@ export function RightSidebar({ workflowId }: { workflowId: string }) {
           <Inspector node={selected} />
         </TabsContent>
       </Tabs>
-    </ResizablePanel>
+    </div>
   )
 }
