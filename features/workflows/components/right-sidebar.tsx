@@ -332,8 +332,8 @@ function ActionsMenu({ workflowId }: { workflowId: string }) {
           variant="destructive"
           disabled={isPending}
           className="text-xs [&_svg:not([class*='size-'])]:size-3.5"
-          onSelect={async () => {
-            await startTransition(async () => {
+          onClick={async () => {
+            startTransition(async () => {
               await deleteWorkflowAction(workflowId)
             })
           }}
@@ -417,9 +417,9 @@ export function RightSidebar({ workflowId }: { workflowId: string }) {
     setTab("editor")
   }
   useOnSelectionChange({
-    onChange: ({ nodes }) => {
+    onChange: useCallback(({ nodes }: { nodes: StepNodeType[] }) => {
       setSelectedId(nodes[0]?.id ?? null)
-    },
+    }, []),
   })
 
   useEffect(() => {
