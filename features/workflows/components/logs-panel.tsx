@@ -104,18 +104,27 @@ export function LogsPanel({
                       </div>
                     </button>
                   )}
-                  {run.steps.map((step) => {
+                  {run.steps.map((step, index) => {
+                    const stepKey = step.nodeId ?? `${run.id}:${step.nodeType}:${index}`
                     const isSelected =
                       selected?.kind === "step" &&
                       selected.runId === run.id &&
                       selected.nodeId === step.nodeId
                     return (
                       <StepRow
-                        key={`${run.id}:${step.nodeId}`}
+                        key={stepKey}
                         step={step}
                         selected={isSelected}
                         onClick={() =>
-                          onSelect(isSelected ? null : { kind: "step", runId: run.id, nodeId: step.nodeId })
+                          onSelect(
+                            isSelected
+                              ? null
+                              : {
+                                  kind: "step",
+                                  runId: run.id,
+                                  nodeId: step.nodeId,
+                                },
+                          )
                         }
                       />
                     )

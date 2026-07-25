@@ -10,22 +10,29 @@ export function NodeIcon({
   className,
   running,
 }: {
-  type: NodeType
+  type?: NodeType | string | null
   className?: string
   running?: boolean
 }) {
-  const def = nodeRegistry[type]
-  const Icon = def.icon
+  const def = type ? nodeRegistry[type as NodeType] : undefined
+  const Icon = def?.icon
+  const accent = def?.accent ?? "bg-muted text-muted-foreground"
 
   return (
     <span
       className={cn(
         "flex size-6 shrink-0 items-center justify-center rounded-md",
-        def.accent,
+        accent,
         className,
       )}
     >
-      {running ? <LoaderCircle className="size-3.5 animate-spin" /> : <Icon className="size-3.5" />}
+      {running ? (
+        <LoaderCircle className="size-3.5 animate-spin" />
+      ) : Icon ? (
+        <Icon className="size-3.5" />
+      ) : (
+        <span className="size-2 rounded-full bg-current" />
+      )}
     </span>
   )
 }
