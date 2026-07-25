@@ -17,7 +17,7 @@ function StepNodeComponent({ id, data, selected }: NodeProps<StepNodeType>) {
   const Icon = def.icon
   const { steps, isLive } = useLatestRunSteps()
 
-  const step = steps.find((s) => s.id === id)
+  const step = steps.find((s) => s.nodeId === id)
   const isRunning = step?.status === "running" && isLive
   const isFailed = step?.status === "failed"
 

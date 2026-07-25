@@ -4,12 +4,21 @@ import { createContext, useContext, useMemo } from "react"
 import { useRealtimeRunsWithTag } from "@trigger.dev/react-hooks"
 import type { RunStep, runworkflowTask } from "@/features/workflows/tasks/run-workflow"
 
+type WorkflowRun = {
+  id: string
+  status: string
+  output?: RunStep[]
+  steps: RunStep[]
+}
+
 type WorkflowRunsContextValue = {
+  runs: WorkflowRun[]
   steps: RunStep[]
   isLive: boolean
 }
 
 const WorkflowRunsContext = createContext<WorkflowRunsContextValue>({
+  runs: [],
   steps: [],
   isLive: false,
 })
@@ -29,18 +38,27 @@ export function WorkflowRunsProvider({
   )
 
   const value = useMemo(() => {
-    const latest = runs ? runs[runs.length - 1] : undefined
-    if (!latest) return { steps: [], isLive: false }
+    const mappedRuns: WorkflowRun[] =
+      runs?.map((run) => {
+        const steps =
+          (run.output as RunStep[] | undefined) ??
+          (run.metadata?.steps as RunStep[] | undefined) ??
+          []
 
+        return {
+          id: run.id,
+          status: run.status,
+          output: run.output as RunStep[] | undefined,
+          steps,
+        }
+      }) ?? []
+
+    const latest = mappedRuns[mappedRuns.length - 1]
+    const latestSteps = latest?.steps ?? []
     const isLive =
-      latest.status === "QUEUED" || latest.status === "EXECUTING"
+      latest?.status === "QUEUED" || latest?.status === "EXECUTING"
 
-    const steps: RunStep[] =
-      (latest.output as RunStep[] | undefined) ??
-      (latest.metadata?.steps as RunStep[] | undefined) ??
-      []
-
-    return { steps, isLive }
+    return { runs: mappedRuns, steps: latestSteps, isLive }
   }, [runs])
 
   return (
