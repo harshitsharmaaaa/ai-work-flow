@@ -7,6 +7,11 @@ import { useLatestRunSteps } from "@/features/workflows/components/workflow-runs
 import { cn } from "@/lib/utils"
 import type { RunStep } from "@/features/workflows/tasks/run-workflow"
 
+export type ConsoleSelection =
+  | { kind: "step"; runId: string; nodeId: string }
+  | { kind: "replay"; runId: string }
+  | null
+
 function StepRow({
   step,
   selected,
@@ -49,11 +54,11 @@ export type SelectedStepRef = {
 } | null
 
 export function LogsPanel({
-  selectedStep,
-  onSelectStep,
+  selected,
+  onSelect,
 }: {
-  selectedStep: SelectedStepRef
-  onSelectStep: (step: SelectedStepRef) => void
+  selected: ConsoleSelection
+  onSelect: (selection: ConsoleSelection) => void
 }) {
   const { runs } = useLatestRunSteps()
 
@@ -71,21 +76,46 @@ export function LogsPanel({
                   Run {run.id.slice(0, 8)}
                 </div>
                 <div className="flex flex-col gap-1.5">
+                  {run.sessionId && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onSelect(
+                          selected?.kind === "replay" && selected.runId === run.id
+                            ? null
+                            : { kind: "replay", runId: run.id },
+                        )
+                      }
+                      className={cn(
+                        "flex w-full items-center gap-2 rounded-md border px-2 py-2 text-left transition-colors",
+                        selected?.kind === "replay" && selected.runId === run.id
+                          ? "border-ring bg-accent/50"
+                          : "border-transparent hover:bg-accent/40",
+                      )}
+                    >
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-sky-500 text-white">
+                        <span className="size-2 rounded-full bg-white" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-xs font-medium">Replay</div>
+                        <div className="truncate text-[11px] text-muted-foreground">
+                          {run.sessionId}
+                        </div>
+                      </div>
+                    </button>
+                  )}
                   {run.steps.map((step) => {
                     const isSelected =
-                      selectedStep?.runId === run.id &&
-                      selectedStep.nodeId === step.nodeId
+                      selected?.kind === "step" &&
+                      selected.runId === run.id &&
+                      selected.nodeId === step.nodeId
                     return (
                       <StepRow
                         key={`${run.id}:${step.nodeId}`}
                         step={step}
                         selected={isSelected}
                         onClick={() =>
-                          onSelectStep(
-                            isSelected
-                              ? null
-                              : { runId: run.id, nodeId: step.nodeId },
-                          )
+                          onSelect(isSelected ? null : { kind: "step", runId: run.id, nodeId: step.nodeId })
                         }
                       />
                     )

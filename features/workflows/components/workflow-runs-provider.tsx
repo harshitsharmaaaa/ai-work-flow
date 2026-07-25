@@ -2,12 +2,17 @@
 
 import { createContext, useContext, useMemo } from "react"
 import { useRealtimeRunsWithTag } from "@trigger.dev/react-hooks"
-import type { RunStep, runworkflowTask } from "@/features/workflows/tasks/run-workflow"
+import type {
+  RunOutput,
+  RunStep,
+  runworkflowTask,
+} from "@/features/workflows/tasks/run-workflow"
 
 type WorkflowRun = {
   id: string
   status: string
-  output?: RunStep[]
+  sessionId: string | null
+  output?: RunOutput
   steps: RunStep[]
 }
 
@@ -40,15 +45,17 @@ export function WorkflowRunsProvider({
   const value = useMemo(() => {
     const mappedRuns: WorkflowRun[] =
       runs?.map((run) => {
+        const output = run.output as RunOutput | undefined
         const steps =
-          (run.output as RunStep[] | undefined) ??
+          output?.steps ??
           (run.metadata?.steps as RunStep[] | undefined) ??
           []
 
         return {
           id: run.id,
           status: run.status,
-          output: run.output as RunStep[] | undefined,
+          sessionId: output?.sessionId ?? null,
+          output,
           steps,
         }
       }) ?? []

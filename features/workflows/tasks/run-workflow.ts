@@ -19,6 +19,11 @@ export type RunStep = {
   error: string | null
 }
 
+export type RunOutput = {
+  sessionId: string | null
+  steps: RunStep[]
+}
+
 function toDeserializedJson(value: unknown): DeserializedJson | null {
   if (
     value === null ||
@@ -82,6 +87,7 @@ export const runworkflowTask = task({
         await metadata.flush();
 
         let stagehand: Stagehand | undefined;
+        let replaySessionId: string | null = null;
         const getStagehand = async () => {
             if(!stagehand){
                 stagehand = new Stagehand({
@@ -93,6 +99,7 @@ export const runworkflowTask = task({
                 });
             }
             await stagehand.init();
+            replaySessionId = stagehand.browserbaseSessionID ?? replaySessionId;
             return stagehand;
         }
 
@@ -155,6 +162,9 @@ export const runworkflowTask = task({
             }
         }
         await stagehand?.close();
-        return steps;
+        return {
+          sessionId: replaySessionId,
+          steps,
+        } satisfies RunOutput;
     }
 })
