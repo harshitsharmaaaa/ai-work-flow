@@ -11,7 +11,9 @@ import type {runworkflowTask} from "./tasks/run-workflow";
 import { WorkFlowGraph } from "@/lib/db/schema";
 export async function createWorkflowAction(name: string) {
   const { orgId, has } = await auth();
-  if (!orgId) throw new Error("No active organization");
+  if (!orgId) {
+    redirect("/session-tasks/choose-organization");
+  }
   if (!has({ plan: "pro" })) {
     redirect("/pricing");
   }
@@ -24,7 +26,9 @@ export async function createWorkflowAction(name: string) {
 
 export async function deleteWorkflowAction(workflowId: string) {
   const { orgId } = await auth();
-  if (!orgId) throw new Error("No active organization");
+  if (!orgId) {
+    redirect("/session-tasks/choose-organization");
+  }
 
   const deleted = await deleteWorkflow(orgId, workflowId);
   if (!deleted) throw new Error("Workflow not found");
@@ -51,7 +55,9 @@ export async function runWorkflowAction({
   graph: WorkFlowGraph;
 }) {
   const {orgId} = await auth();
-  if (!orgId) throw new Error("No active organization");
+  if (!orgId) {
+    redirect("/session-tasks/choose-organization");
+  }
 
   await saveworkflowgraph({
     orgId,
@@ -69,7 +75,9 @@ export async function runWorkflowAction({
 
 export async function cancelWorkflowAction(id: string) {
   const {orgId} = await auth();
-  if (!orgId) throw new Error("No active organization");
+  if (!orgId) {
+    redirect("/session-tasks/choose-organization");
+  }
 
   await runs.cancel(id);
 }
