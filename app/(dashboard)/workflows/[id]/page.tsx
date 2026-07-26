@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { WorkflowShell } from "@/features/workflows/components/workflow-shell"
 import { Room } from "@/features/workflows/components/Room"
 import { WorkflowRunsProvider } from "@/features/workflows/components/workflow-runs-provider"
@@ -11,10 +12,17 @@ export default async function Page(props: PageProps<"/workflows/[id]">) {
   const { id } = await props.params
   const {orgId} = await auth()
   if(!orgId){
+    Sentry.logger.warn("Workflow page requested without an active organization", {
+      workflowId: id,
+    });
     return notFound()
   }
   const workflows = await getWorkflow(orgId,id)
   if(!workflows){
+    Sentry.logger.warn("Workflow page requested for a missing workflow", {
+      workflowId: id,
+      orgId,
+    });
     return notFound()
   }
   try {
@@ -26,7 +34,11 @@ export default async function Page(props: PageProps<"/workflows/[id]">) {
       organizationId: orgId,
     })
   } catch (error) {
-    console.error("Failed to create Liveblocks room:", error)
+    Sentry.logger.error("Failed to create Liveblocks room", {
+      workflowId: id,
+      orgId,
+      error,
+    });
   }
 
   const accessToken = await triggerAuth.createPublicToken({

@@ -1,5 +1,6 @@
 "use server";
 
+import * as Sentry from "@sentry/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -32,7 +33,10 @@ export async function deleteWorkflowAction(workflowId: string) {
     await liveblocks.deleteRoom(workflowId);
   } catch (error) {
     // Room may already be gone; the DB row is the source of truth.
-    console.error("Failed to delete Liveblocks room:", error);
+    Sentry.logger.error("Failed to delete Liveblocks room", {
+      workflowId,
+      error,
+    });
   }
 
   revalidatePath("/", "layout");

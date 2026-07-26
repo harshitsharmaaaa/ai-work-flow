@@ -1,5 +1,6 @@
 "use client"
 
+import * as Sentry from "@sentry/nextjs"
 import { useEffect } from "react"
 import { AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -20,7 +21,10 @@ export default function Error({
   unstable_retry: () => void
 }) {
   useEffect(() => {
-    console.error(error)
+    Sentry.logger.error("Workflow page failed to render", {
+      error,
+      digest: error.digest,
+    })
   }, [error])
 
   return (

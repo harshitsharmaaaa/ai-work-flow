@@ -5,7 +5,11 @@ import { Lock, MoreHorizontal, Play, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { useOnSelectionChange, useReactFlow, useStore } from "@xyflow/react"
 
-import { deleteWorkflowAction , runWorkflowAction} from "@/features/workflows/actions";
+import {
+  cancelWorkflowAction,
+  deleteWorkflowAction,
+  runWorkflowAction,
+} from "@/features/workflows/actions";
 import {validateGraph} from "@/features/workflows/lib/validate-grpah";
 import {
   Accordion,
@@ -28,6 +32,7 @@ import { cn } from "@/lib/utils"
 import { NodeIcon } from "@/features/workflows/components/node-icon"
 import { useUpstreamConnections } from "@/features/workflows/hooks/use-upstream-connections"
 import { useProPlan } from "@/features/workflows/hooks/use-pro-plan"
+import { useLatestRunSteps } from "@/features/workflows/components/workflow-runs-provider"
 import {
   nodeRegistry,
   type NodeDefinition,
@@ -345,7 +350,12 @@ function ActionsMenu({ workflowId }: { workflowId: string }) {
 function RunButton({workflowId}: {workflowId: string}) {
   const {getNodes, getEdges} = useReactFlow<StepNodeType>();
   const [isPending, startTransition] = useTransition();
-  const handleRun = () => {
+  const { runs, isLive } = useLatestRunSteps()
+  const liveRun = isLive ? runs[runs.length - 1] : undefined
+  const isRunning = Boolean(liveRun)
+  const label = isRunning ? (isPending ? "Stopping…" : "Stop") : "Run"
+
+  const handleRun = (graph: { nodes: StepNodeType[]; edges: ReturnType<typeof getEdges> }) => {
     const incomplete: string[] = []
 
     for (const node of getNodes()) {
@@ -367,14 +377,24 @@ function RunButton({workflowId}: {workflowId: string}) {
       return
     }
 
-    // TODO: validate the graph and run the workflow (toggle to Stop while running).
+    startTransition(async () => {
+      await runWorkflowAction({id: workflowId, graph});
+    });
   }
 
   return (
     <Button
       size="sm"
       variant="secondary"
-      onClick={()=>{
+      disabled={isPending}
+      onClick={() => {
+        if (isRunning && liveRun) {
+          startTransition(async () => {
+            await cancelWorkflowAction(liveRun.id)
+          })
+          return
+        }
+
         const graph = {nodes:getNodes(), edges:getEdges()};
         const problems = validateGraph(graph);
         if(problems.length > 0){
@@ -383,13 +403,11 @@ function RunButton({workflowId}: {workflowId: string}) {
           });
           return;
         }
-        startTransition(async () => {
-          await runWorkflowAction({id: workflowId, graph});
-        }); 
+        handleRun(graph)
       }}
     >
       <Play fill="primary" />
-      Run
+      {label}
     </Button>
   )
 }

@@ -1,0 +1,27 @@
+
+> ai-work-flow@0.0.1 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.21.1:3000
+- Environments: .env
+✓ Ready in 28.9s
+○ Compiling instrumentation Node.js ...
+○ Compiling instrumentation Edge ...
+○ Compiling proxy ...
+- Experiments (use with caution):
+  · clientTraceMetadata
+
+Attention: Clerk collects telemetry data from its SDKs when connected to development instances.
+The data collected is used to inform Clerk's product roadmap.
+To learn more, including how to opt-out from the telemetry program, visit: https://clerk.com/docs/telemetry.
+
+○ Compiling /api/sentry-test ...
+ GET /api/sentry-test 500 in 27.6s (next.js: 26.8s, proxy.ts: 129ms, application-code: 693ms)
+  Reload env: .env
+✓ Finished writing to filesystem cache in 92s
+  Reload env: .env
+✓ Compiled in 292.4s
+✓ Finished writing to filesystem cache in 44s
+[?25h
