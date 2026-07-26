@@ -58,6 +58,7 @@
     "unique-names-generator": "^4.7.1"
   },
   "devDependencies": {
+    "@sentry/esbuild-plugin": "^5.4.0",
     "@tailwindcss/postcss": "^4",
     "@trigger.dev/build": "4.5.7",
     "@types/node": "^20",
