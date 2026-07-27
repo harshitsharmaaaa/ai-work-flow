@@ -1,5 +1,5 @@
 import { PricingTable } from "@clerk/nextjs"
 
 export default function PricingPage() {
-  return <PricingTable for="organization" />
+  return <PricingTable  for ="organization" />
 }
