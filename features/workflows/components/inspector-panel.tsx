@@ -118,6 +118,9 @@ export function InspectorPanel({ selected }: { selected: ConsoleSelection }) {
   if (selected?.kind === "replay") {
     return (
       <div className="flex h-full min-h-0 flex-col border-l border-border bg-background p-3">
+        <div className="mb-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-primary">
+          Session replay is attached to this run. The inspector is now showing recorded execution.
+        </div>
         {replayRun?.sessionId ? (
           <SessionReplay sessionId={replayRun.sessionId} />
         ) : (
@@ -132,16 +135,20 @@ export function InspectorPanel({ selected }: { selected: ConsoleSelection }) {
       <div className="border-b border-border px-3 py-2 text-sm font-semibold">Output</div>
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
         {!selected ? (
-          <p className="text-sm text-muted-foreground">Select a step to inspect its output.</p>
+          <div className="rounded-lg border border-dashed border-border/80 bg-muted/20 p-4 text-sm text-muted-foreground">
+            Select a step to inspect its output.
+          </div>
         ) : !selection ? (
-          <p className="text-sm text-muted-foreground">Selected step is no longer available.</p>
+          <div className="rounded-lg border border-dashed border-border/80 bg-muted/20 p-4 text-sm text-muted-foreground">
+            Selected step is no longer available.
+          </div>
         ) : selection.status === "failed" ? (
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
-              <NodeIcon type={selection.nodeType} />
+              <NodeIcon type={selection.nodeType} failed />
               <div className="min-w-0">
                 <div className="text-sm font-medium">{selection.title}</div>
-                <div className="text-xs text-destructive">Failed</div>
+                <div className="text-xs text-destructive">Failed during execution</div>
               </div>
             </div>
             <pre className="whitespace-pre-wrap rounded-md border border-destructive/20 bg-destructive/5 p-3 text-xs text-destructive">
@@ -149,11 +156,13 @@ export function InspectorPanel({ selected }: { selected: ConsoleSelection }) {
             </pre>
           </div>
         ) : selection.output == null ? (
-          <p className="text-sm text-muted-foreground">This step produced no output.</p>
+          <div className="rounded-lg border border-dashed border-border/80 bg-muted/20 p-4 text-sm text-muted-foreground">
+            This step produced no output.
+          </div>
         ) : (
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
-              <NodeIcon type={selection.nodeType} />
+              <NodeIcon type={selection.nodeType} completed />
               <div className="min-w-0">
                 <div className="text-sm font-medium">{selection.title}</div>
                 <div className={cn("text-xs text-muted-foreground")}>Completed</div>

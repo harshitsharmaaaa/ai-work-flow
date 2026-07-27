@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState, useTransition } from "react"
+import { useCallback, useState, useTransition } from "react"
 import { Lock, MoreHorizontal, Play, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { useOnSelectionChange, useReactFlow, useStore } from "@xyflow/react"
@@ -406,7 +406,7 @@ function RunButton({workflowId}: {workflowId: string}) {
         handleRun(graph)
       }}
     >
-      <Play fill="primary" />
+      <Play className={cn(isRunning && "animate-pulse")} fill="currentColor" />
       {label}
     </Button>
   )
@@ -424,48 +424,41 @@ export function RightSidebar({ workflowId }: { workflowId: string }) {
     selectedId ? (s.nodeLookup.get(selectedId) as StepNodeType | undefined) : undefined
   )
 
-  const [prevSelected, setPrevSelected] = useState(selectedId)
-  if (selectedId && prevSelected !== selectedId) {
-    setPrevSelected(selectedId)
-    setTab("editor")
-  }
   useOnSelectionChange({
     onChange: useCallback(({ nodes }: { nodes: StepNodeType[] }) => {
-      setSelectedId(nodes[0]?.id ?? null)
+      const nextSelectedId = nodes[0]?.id ?? null
+      setSelectedId(nextSelectedId)
+      if (nextSelectedId) {
+        setTab("editor")
+      }
     }, []),
   })
-
-  useEffect(() => {
-    if (selectedId) {
-      setTab("editor")
-    }
-  }, [selectedId])
 
   return (
     <div className="size-full bg-background">
       <Tabs value={tab} onValueChange={setTab} className="size-full gap-0">
-        <div className="flex items-center justify-between border-b border-border p-2">
+        <div className="flex items-center justify-between border-b border-border bg-card/70 p-2 backdrop-blur-sm">
           <ActionsMenu workflowId={workflowId} />
           <RunButton workflowId={workflowId}/>
         </div>
         <TabsList className="m-2 w-fit bg-background">
           <TabsTrigger
             value="toolbar"
-            className="flex-none rounded-sm data-active:bg-accent! data-active:text-accent-foreground! data-active:shadow-none! dark:data-active:border-transparent!"
+            className="flex-none rounded-sm transition-all duration-300 data-active:bg-accent! data-active:text-accent-foreground! data-active:shadow-none! dark:data-active:border-transparent!"
           >
             Toolbar
           </TabsTrigger>
           <TabsTrigger
             value="editor"
-            className="flex-none rounded-sm data-active:bg-accent! data-active:text-accent-foreground! data-active:shadow-none! dark:data-active:border-transparent!"
+            className="flex-none rounded-sm transition-all duration-300 data-active:bg-accent! data-active:text-accent-foreground! data-active:shadow-none! dark:data-active:border-transparent!"
           >
             Editor
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="toolbar" className="flex min-h-0 flex-col">
+        <TabsContent value="toolbar" className="flex min-h-0 flex-col data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-right-2">
           <Palette />
         </TabsContent>
-        <TabsContent value="editor" className="flex min-h-0 flex-col">
+        <TabsContent value="editor" className="flex min-h-0 flex-col data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-right-2">
           <Inspector node={selected} />
         </TabsContent>
       </Tabs>
