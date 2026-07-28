@@ -20,7 +20,7 @@ function StepNodeComponent({ id, data, selected }: NodeProps<StepNodeType>) {
   const step = steps.find((s) => s.nodeId === id)
   const isRunning = step?.status === "running" && isLive
   const isFailed = step?.status === "failed"
-  const isComplete = step?.status === "complete"
+  const isComplete = step?.status === "done"
 
   // A trigger starts the flow and takes no input, so it has no target handle.
   const hasTarget = kind !== "trigger"

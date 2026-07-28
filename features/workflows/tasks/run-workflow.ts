@@ -105,9 +105,12 @@ export const runworkflowTask = task({
 
         const outputs: Record<string, unknown> = {};
 
-        for (const id of order) {
-            const node = byId.get(id);
-            logger.log(`Running step ${node?.data.title}`);
+	        for (const id of order) {
+	            const node = byId.get(id);
+	            if (!node) {
+	                continue;
+	            }
+	            logger.log(`Running step ${node?.data.title}`);
 
             const rawValues = node?.data.values ?? {};
             const interpolatedValues: Record<string, string> = {};
@@ -126,7 +129,7 @@ export const runworkflowTask = task({
               await metadata.flush();
             }
 
-            const executor = nodeExecutors[node?.data.type!];
+	            const executor = nodeExecutors[node.data.type];
             if(!executor){
                 if (step) {
                   step.status = "done";

@@ -1,9 +1,8 @@
-import { Liveblocks } from "@liveblocks/node";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { liveblocks } from "@/features/workflows/lib/liveblock";
 
 
-export async function POST(request: Request) {
+export async function POST() {
   const { userId, orgId } = await auth();
 
   if (!userId) {

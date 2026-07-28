@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { auth as triggerAuth, tasks ,runs} from "@trigger.dev/sdk";
+import { tasks ,runs} from "@trigger.dev/sdk";
 import { createWorkflow, deleteWorkflow ,saveworkflowgraph} from "./data";
 import { liveblocks } from "@/features/workflows/lib/liveblock";
 import type {runworkflowTask} from "./tasks/run-workflow";
@@ -43,8 +43,8 @@ export async function deleteWorkflowAction(workflowId: string) {
     });
   }
 
-  revalidatePath("/", "layout");
-  redirect("/");
+  revalidatePath("/dashboard", "layout");
+  redirect("/dashboard");
 }
 
 export async function runWorkflowAction({

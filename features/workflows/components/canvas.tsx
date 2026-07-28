@@ -6,6 +6,7 @@ import { useMounted } from "@/hooks/use-mounted"
 import {
   ReactFlow,
   Background,
+  BackgroundVariant,
   Controls,
   MiniMap,
   ConnectionLineType,
@@ -84,7 +85,7 @@ export function Canvas() {
       }
       maxZoom={1}
     >
-      <Background variant="dots" gap={36} size={1.2} color="var(--border)" />
+      <Background variant={BackgroundVariant.Dots} gap={36} size={1.2} color="var(--border)" />
       <Controls showInteractive={false} />
       <MiniMap pannable zoomable nodeColor={() => "color-mix(in oklch, var(--primary), transparent 42%)"} />
       <Cursors />

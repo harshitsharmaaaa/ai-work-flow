@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server"
 import { createWorkflowAction } from "@/features/workflows/actions"
 import { EmptyWorkflows } from "@/features/workflows/components/empty-workflows"
 
-export default async function Page() {
+export default async function DashboardPage() {
   const { orgId } = await auth()
 
   if (!orgId) {

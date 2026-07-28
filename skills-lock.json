@@ -61,6 +61,12 @@
       "skillPath": "skills/fetch/SKILL.md",
       "computedHash": "c16b8fceac3bcc088837c9c684a05cf8d2481588f1b4aee1ea36c9689ad386cc"
     },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "93f53fd1c0352d3d7ec17b8f73d7351bf76f4821e55d123c9d2abc2c53ba48e4"
+    },
     "functions": {
       "source": "browserbase/skills",
       "sourceType": "github",

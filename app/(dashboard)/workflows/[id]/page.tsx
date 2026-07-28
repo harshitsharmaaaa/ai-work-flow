@@ -8,7 +8,11 @@ import {notFound} from "next/navigation";
 import {getWorkflow} from "@/features/workflows/data"
 import { liveblocks } from "@/features/workflows/lib/liveblock";
 
-export default async function Page(props: PageProps<"/workflows/[id]">) {
+type WorkflowPageProps = {
+  params: Promise<{ id: string }>
+}
+
+export default async function Page(props: WorkflowPageProps) {
   const { id } = await props.params
   const {orgId} = await auth()
   if(!orgId){
